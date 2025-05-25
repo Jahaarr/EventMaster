@@ -1,11 +1,9 @@
 package com.eventmaster.agents;
 
-import org.springframework.stereotype.Component;
-
-@Component
-public class CommunicationAgent implements agent {
+public class CommunicationAgent extends BaseAgent {
     @Override
     public String processRequest(String request) {
+        System.out.println("CommunicationAgent traite la requête : " + request);
         if (request.contains("lance une campagne")) {
             return "Campagne de communication lancée sur Twitter, LinkedIn, et Instagram.";
         } else if (request.contains("inscriptions")) {

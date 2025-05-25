@@ -1,11 +1,10 @@
 package com.eventmaster;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import com.eventmaster.ui.ConsoleUI;
 
-@SpringBootApplication
 public class EventMasterApplication {
     public static void main(String[] args) {
-        SpringApplication.run(EventMasterApplication.class, args);
+        // Rediriger vers ConsoleUI
+        ConsoleUI.main(args);
     }
 }

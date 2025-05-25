@@ -1,19 +1,18 @@
 package com.eventmaster.agents;
 
 import com.eventmaster.models.Event;
-import org.springframework.stereotype.Component;
+import java.time.LocalDate;
 
-@Component
-public class PlanningAgent implements agent {
+public class PlanningAgent extends BaseAgent {
     @Override
     public String processRequest(String request) {
+        System.out.println("PlanningAgent traite la requête : " + request);
         if (request.contains("planifie") || request.contains("conférence")) {
-            // Simuler la création d'un événement
             Event event = new Event();
             event.setId(1L);
             event.setName("Conférence IA");
             event.setTheme("Intelligence Artificielle");
-            event.setDate(java.time.LocalDate.of(2025, 9, 15));
+            event.setDate(LocalDate.of(2025, 9, 15));
             event.setLocation("Centre de Congrès, Paris");
             event.setExpectedParticipants(200);
             event.setBudget(10000.0);
