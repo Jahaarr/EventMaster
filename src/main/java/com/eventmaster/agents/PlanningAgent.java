@@ -2,7 +2,9 @@ package com.eventmaster.agents;
 
 import com.eventmaster.models.Event;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Locale;
 
 public class PlanningAgent extends BaseAgent {
     @Override
@@ -13,9 +15,18 @@ public class PlanningAgent extends BaseAgent {
             try {
                 String[] parts = request.split("pour le ");
                 if (parts.length > 1) {
-                    date = LocalDate.parse(parts[1].trim()); // Parse the date from the request
+                    String dateString = parts[1].trim();
+                    System.out.println("Extracted date string: " + dateString); // Debug log
+                    // Create a formatter for French date format "d MMMM"
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMMM", Locale.FRENCH);
+                    // Parse the day and month
+                    java.time.temporal.TemporalAccessor temporalAccessor = formatter.parse(dateString);
+                    int dayOfMonth = Integer.parseInt(DateTimeFormatter.ofPattern("d").withLocale(Locale.FRENCH).format(temporalAccessor));
+                    int month = Integer.parseInt(DateTimeFormatter.ofPattern("M").withLocale(Locale.FRENCH).format(temporalAccessor));
+                    // Set the year to 2025 (current year)
+                    date = LocalDate.of(2025, month, dayOfMonth);
                 }
-            } catch (DateTimeParseException e) {
+            } catch (DateTimeParseException | NumberFormatException e) {
                 System.out.println("Failed to parse date from request, using default: " + e.getMessage());
             }
 
