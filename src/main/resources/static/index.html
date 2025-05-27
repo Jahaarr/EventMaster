@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EventMaster Web</title>
+    <script src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/axios@1.6.8/dist/axios.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone@7.22.5/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+<div id="root">
+    <p>Loading EventMaster... If this message persists, check the browser console (F12) for errors.</p>
+</div>
+<script type="text/babel">
+    console.log("Starting EventMaster React app...");
+
+    const { useState } = React;
+    const { createRoot } = ReactDOM;
+
+    function ErrorBoundary({ children }) {
+        const [error, setError] = useState(null);
+        if (error) {
+            return <div className="text-red-500 p-4">Error: {error}</div>;
+        }
+        return children;
+    }
+
+    function App() {
+        const [request, setRequest] = useState('');
+        const [response, setResponse] = useState('');
+        const [loading, setLoading] = useState(false);
+        const [error, setError] = useState('');
+
+        const handleSubmit = async (e) => {
+            e.preventDefault();
+            if (!request.trim()) {
+                setError('Please enter a request.');
+                return;
+            }
+            setLoading(true);
+            setError('');
+            try {
+                const res = await axios.post('http://localhost:8080/api/request', { request });
+                setResponse(res.data.response);
+            } catch (err) {
+                setError('Error sending request: ' + err.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        return (
+            <ErrorBoundary>
+                <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
+                    <h1 className="text-3xl font-bold text-gray-800 mb-6">EventMaster</h1>
+                    <div className="w-full max-w-md bg-white p-6 rounded-lg shadow-md">
+                        <h2 className="text-xl font-semibold mb-4">Submit Your Request</h2>
+                        <div className="space-y-4">
+                            <input
+                                type="text"
+                                value={request}
+                                onChange={(e) => setRequest(e.target.value)}
+                                placeholder="Enter your request (e.g., 'planifie une conférence')"
+                                className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                            <button
+                                onClick={handleSubmit}
+                                disabled={loading}
+                                className={`w-full p-2 text-white rounded-md ${
+                                    loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'
+                                }`}
+                            >
+                                {loading ? 'Sending...' : 'Send Request'}
+                            </button>
+                        </div>
+                        {error && <p className="mt-4 text-red-500">{error}</p>}
+                        {response && (
+                            <div className="mt-4 p-4 bg-gray-50 rounded-md">
+                                <h3 className="font-semibold">Response:</h3>
+                                <p className="text-gray-700">{response}</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </ErrorBoundary>
+        );
+    }
+
+    try {
+        const root = createRoot(document.getElementById('root'));
+        root.render(<App />);
+        console.log("React app rendered successfully.");
+    } catch (err) {
+        console.error("Failed to render React app:", err);
+    }
+</script>
+</body>
+</html>

@@ -88,10 +88,16 @@ public class EventCoordinator extends Agent {
         // Envoyer la requête à tous les agents
         System.out.println("Envoi de la requête aux agents : " + request + " à " + java.time.LocalDateTime.now());
         for (String agentName : agentNames) {
-            ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
-            msg.addReceiver(new AID(agentName, AID.ISLOCALNAME));
-            msg.setContent(request);
-            send(msg);
+            try {
+                ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
+                msg.addReceiver(new AID(agentName, AID.ISLOCALNAME));
+                msg.setContent(request);
+                send(msg);
+                System.out.println("Requête envoyée à " + agentName + " à " + java.time.LocalDateTime.now());
+            } catch (Exception e) {
+                System.err.println("Erreur lors de l'envoi de la requête à " + agentName + " à " + java.time.LocalDateTime.now() + ": " + e.getMessage());
+                e.printStackTrace();
+            }
         }
     }
 }
