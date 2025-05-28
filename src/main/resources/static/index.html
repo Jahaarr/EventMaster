@@ -136,6 +136,13 @@
 
         let isRecording = false;
         let recognition;
+        let networkErrorCount = 0;
+        const MAX_NETWORK_ERRORS = 3; // Nombre maximum d'erreurs réseau avant désactivation temporaire
+
+        // Vérifier la connectivité réseau
+        function checkNetwork() {
+            return navigator.onLine;
+        }
 
         // Initialiser Web Speech API
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -157,9 +164,23 @@
             };
 
             recognition.onerror = (event) => {
-                addMessage('bot', `Erreur de reconnaissance vocale : ${event.error}`);
                 isRecording = false;
                 micButton.classList.remove('recording');
+                if (event.error === 'network') {
+                    networkErrorCount++;
+                    addMessage('bot', 'Erreur de reconnaissance vocale : problème de connexion réseau. Veuillez vérifier votre connexion Internet.');
+                    if (networkErrorCount >= MAX_NETWORK_ERRORS) {
+                        micButton.disabled = true;
+                        addMessage('bot', 'Mode vocal désactivé temporairement en raison de problèmes réseau répétés. Utilisez le mode textuel ou réessayez plus tard.');
+                        setTimeout(() => {
+                            networkErrorCount = 0;
+                            micButton.disabled = false;
+                            addMessage('bot', 'Mode vocal réactivé. Vous pouvez maintenant réessayer.');
+                        }, 30000); // Réactiver après 30 secondes
+                    }
+                } else {
+                    addMessage('bot', `Erreur de reconnaissance vocale : ${event.error}`);
+                }
                 console.error('Erreur de reconnaissance vocale:', event.error);
             };
         } else {
@@ -232,6 +253,11 @@
         // Gérer l'enregistrement vocal
         window.toggleRecording = function() {
             if (!recognition) return;
+
+            if (!checkNetwork()) {
+                addMessage('bot', 'Erreur : Aucune connexion réseau détectée. Veuillez vérifier votre connexion Internet avant d\'utiliser le mode vocal.');
+                return;
+            }
 
             if (isRecording) {
                 recognition.stop();
