@@ -3,11 +3,12 @@ package com.eventmaster.agents;
 public class LogisticsAgent extends BaseAgent {
     @Override
     public String processRequest(String request) {
-        System.out.println("LogisticsAgent traite la requête : " + request);
-        if (request.contains("vérifié les fournisseurs")) {
-            return "Fournisseurs confirmés : traiteur réservé pour 200 personnes, matériel audiovisuel prêt.";
-        } else if (request.contains("organise le transport")) {
-            return "Transport organisé pour les intervenants : navette réservée depuis l'aéroport.";
+        if (request.contains("coordonne les fournisseurs")) {
+            return "Fournisseurs coordonnés.";
+        } else if (request.contains("organise les transports")) {
+            String[] parts = request.split("pour les ");
+            String target = parts.length > 1 ? parts[1].trim() : "participants";
+            return "Transports organisés pour les " + target + ".";
         }
         return "Demande non reconnue par l'Agent Logistique.";
     }
