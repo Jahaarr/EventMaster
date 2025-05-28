@@ -14,7 +14,7 @@ public class PlanningAgent extends BaseAgent {
             LocalDate date = LocalDate.now(); // Default to today if date not parsed
             try {
                 if (request.contains("mois prochain")) {
-                    // Définir la date au premier jour du mois suivant
+                    // Défin thatir la date au premier jour du mois suivant
                     date = LocalDate.now().plusMonths(1).withDayOfMonth(1);
                     System.out.println("Date définie pour le mois prochain : " + date);
                 } else {
