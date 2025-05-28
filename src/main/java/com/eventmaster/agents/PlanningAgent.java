@@ -9,7 +9,8 @@ import java.util.Locale;
 public class PlanningAgent extends BaseAgent {
     @Override
     public String processRequest(String request) {
-        System.out.println("PlanningAgent traite la requête : " + request);
+        // Log pour indiquer que la requête est traitée (la source est déjà loggée dans EventMasterRestController)
+        System.out.println("PlanningAgent traite la requête : " + request + " à " + java.time.LocalDateTime.now());
         if (request.contains("planifie") || request.contains("conférence")) {
             LocalDate date = LocalDate.now(); // Default to today if date not parsed
             try {

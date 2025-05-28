@@ -117,7 +117,7 @@
     <div class="chat-body" id="chatBody">
         <div class="chat-message bot">
             <div class="message-bubble">Bienvenue ! Je suis EventMaster, votre assistant pour organiser des événements. Vous pouvez écrire ou parler pour me donner des instructions (ex. : "Planifie une conférence sur l'IA pour le mois prochain").</div>
-            <div class="message-time" data-timestamp="10:09 AM, May 28, 2025">10:09 AM, May 28, 2025</div>
+            <div class="message-time" data-timestamp="10:24 AM, May 28, 2025">10:24 AM, May 28, 2025</div>
         </div>
     </div>
     <div class="chat-footer">
@@ -137,7 +137,7 @@
         let isRecording = false;
         let recognition;
         let networkErrorCount = 0;
-        const MAX_NETWORK_ERRORS = 3; // Nombre maximum d'erreurs réseau avant désactivation temporaire
+        const MAX_NETWORK_ERRORS = 3;
 
         // Vérifier la connectivité réseau
         function checkNetwork() {
@@ -155,7 +155,7 @@
             recognition.onresult = async (event) => {
                 const transcript = event.results[0][0].transcript;
                 addMessage('user', transcript);
-                await sendRequest(transcript);
+                await sendRequest(transcript, 'vocal');
             };
 
             recognition.onend = () => {
@@ -168,7 +168,9 @@
                 micButton.classList.remove('recording');
                 if (event.error === 'network') {
                     networkErrorCount++;
-                    addMessage('bot', 'Erreur de reconnaissance vocale : problème de connexion réseau. Veuillez vérifier votre connexion Internet.');
+                    if (networkErrorCount <= MAX_NETWORK_ERRORS) {
+                        addMessage('bot', 'Erreur de reconnaissance vocale : problème de connexion réseau. Veuillez vérifier votre connexion Internet.');
+                    }
                     if (networkErrorCount >= MAX_NETWORK_ERRORS) {
                         micButton.disabled = true;
                         addMessage('bot', 'Mode vocal désactivé temporairement en raison de problèmes réseau répétés. Utilisez le mode textuel ou réessayez plus tard.');
@@ -176,7 +178,7 @@
                             networkErrorCount = 0;
                             micButton.disabled = false;
                             addMessage('bot', 'Mode vocal réactivé. Vous pouvez maintenant réessayer.');
-                        }, 30000); // Réactiver après 30 secondes
+                        }, 30000);
                     }
                 } else {
                     addMessage('bot', `Erreur de reconnaissance vocale : ${event.error}`);
@@ -210,12 +212,12 @@
         }
 
         // Envoyer une requête (textuelle ou vocale)
-        async function sendRequest(request) {
+        async function sendRequest(request, source) {
             try {
                 const response = await fetch('http://localhost:8080/api/request', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ request: request })
+                    body: JSON.stringify({ request: request, source: source })
                 });
                 if (!response.ok) {
                     throw new Error(`Erreur HTTP ${response.status}: ${response.statusText}`);
@@ -245,7 +247,7 @@
             const message = chatInput.value.trim();
             if (message) {
                 addMessage('user', message);
-                sendRequest(message);
+                sendRequest(message, 'text');
                 chatInput.value = '';
             }
         };

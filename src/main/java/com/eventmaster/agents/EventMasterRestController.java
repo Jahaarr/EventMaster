@@ -24,11 +24,14 @@ public class EventMasterRestController {
     @PostMapping("/api/request")
     public ResponseEntity<?> handleRequest(@RequestBody RequestDTO requestDTO) {
         String request = requestDTO.getRequest();
+        String source = requestDTO.getSource() != null ? requestDTO.getSource() : "unknown";
         if (request == null || request.trim().isEmpty()) {
             return ResponseEntity.badRequest().body(new ResponseDTO("Request cannot be empty"));
         }
 
         try {
+            // Log pour confirmer la source de la requête
+            System.out.println("Requête reçue via " + source + " : " + request + " à " + java.time.LocalDateTime.now());
             AgentController agentController = agentContainer.getAgent("RestAgentBridge");
             RestAgentBridgeInterface restAgentBridge = (RestAgentBridgeInterface) agentController.getO2AInterface(RestAgentBridgeInterface.class);
             if (restAgentBridge == null) {
@@ -45,6 +48,7 @@ public class EventMasterRestController {
 
     public static class RequestDTO {
         private String request;
+        private String source; // Nouveau champ pour indiquer la source (vocal ou text)
 
         public String getRequest() {
             return request;
@@ -52,6 +56,14 @@ public class EventMasterRestController {
 
         public void setRequest(String request) {
             this.request = request;
+        }
+
+        public String getSource() {
+            return source;
+        }
+
+        public void setSource(String source) {
+            this.source = source;
         }
     }
 
